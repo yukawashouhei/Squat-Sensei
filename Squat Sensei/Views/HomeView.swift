@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 struct HomeView: View {
     var body: some View {
@@ -22,57 +21,10 @@ struct HomeView: View {
     }
 
     private var heroSection: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Text("Squat Sensei")
-                        .font(.system(size: 34, weight: .bold, design: .serif))
-                        .italic()
-                        .foregroundStyle(.white)
-
-                    Text("先生")
-                        .font(.caption.bold())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 4)
-                        .background(AppTheme.redAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                }
-
-                Text("MASTER THE SQUAT.\nBUILD STRENGTH. BUILD YOU.")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white.opacity(0.9))
-                    .lineSpacing(4)
-            }
-
-            Spacer(minLength: 0)
-
-            ZStack {
-                Circle()
-                    .fill(AppTheme.redAccent)
-                    .frame(width: 120, height: 120)
-                    .offset(x: 8, y: 8)
-
-                heroImage
-                    .frame(width: 110, height: 110)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var heroImage: some View {
-        if UIImage(named: "hero_samurai") != nil {
-            Image("hero_samurai")
-                .resizable()
-                .scaledToFit()
-        } else {
-            Image(systemName: "figure.strengthtraining.functional")
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(.white)
-                .padding(16)
-        }
+        Image("hero_samurai")
+            .resizable()
+            .scaledToFit()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var todaysWorkoutSection: some View {
@@ -92,9 +44,9 @@ struct HomeView: View {
 
     private var squatSessionCard: some View {
         HStack(spacing: 16) {
-            Image(systemName: "figure.strengthtraining.functional")
-                .font(.system(size: 36))
-                .foregroundStyle(AppTheme.gold)
+            Image("squat_session_icon")
+                .resizable()
+                .scaledToFit()
                 .frame(width: 56, height: 56)
 
             VStack(alignment: .leading, spacing: 6) {

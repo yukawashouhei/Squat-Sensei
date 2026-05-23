@@ -9,30 +9,13 @@ struct StreakCardView: View {
     let store: StreakStore
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(alignment: .center, spacing: 12) {
             flameIcon
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Keep the streak alive!")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.secondaryText)
-
-                HStack(alignment: .lastTextBaseline, spacing: 6) {
-                    Text("\(store.currentStreak)")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-
-                    Text("day streak")
-                        .font(.subheadline)
-                        .foregroundStyle(AppTheme.secondaryText)
-                }
-            }
-
+            streakText
             Spacer(minLength: 8)
-
             weekTracker
         }
-        .padding(18)
+        .padding(14)
         .background(AppTheme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
@@ -41,36 +24,57 @@ struct StreakCardView: View {
         ZStack {
             Circle()
                 .stroke(AppTheme.gold.opacity(0.35), lineWidth: 2)
-                .frame(width: 52, height: 52)
+                .frame(width: 40, height: 40)
 
             Image(systemName: "flame.fill")
-                .font(.title2)
+                .font(.body)
                 .foregroundStyle(AppTheme.gold)
         }
     }
 
+    private var streakText: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Keep the streak alive!")
+                .font(.caption2)
+                .foregroundStyle(AppTheme.secondaryText)
+                .lineLimit(1)
+
+            HStack(alignment: .lastTextBaseline, spacing: 4) {
+                Text("\(store.currentStreak)")
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+
+                Text("day streak")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.secondaryText)
+                    .lineLimit(1)
+            }
+        }
+    }
+
     private var weekTracker: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             ForEach(store.weekDays) { day in
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     Text(day.label)
                         .font(.caption2)
                         .foregroundStyle(AppTheme.secondaryText)
+                        .frame(width: 16)
 
                     if day.isCompleted {
                         ZStack {
                             Circle()
                                 .fill(AppTheme.gold)
-                                .frame(width: 22, height: 22)
+                                .frame(width: 16, height: 16)
 
                             Image(systemName: "checkmark")
-                                .font(.caption2.bold())
+                                .font(.system(size: 9, weight: .bold))
                                 .foregroundStyle(.black)
                         }
                     } else {
                         Circle()
                             .stroke(AppTheme.gold.opacity(0.6), lineWidth: 2)
-                            .frame(width: 22, height: 22)
+                            .frame(width: 16, height: 16)
                     }
                 }
             }
@@ -80,14 +84,16 @@ struct StreakCardView: View {
 
 #Preview("Active streak") {
     StreakCardView(store: .preview(completedDateKeys: StreakCardPreviewData.sevenDayStreak))
-        .padding()
+        .padding(.horizontal, 20)
+        .frame(width: 390)
         .background(AppTheme.background)
         .preferredColorScheme(.dark)
 }
 
 #Preview("Empty streak") {
     StreakCardView(store: .preview(completedDateKeys: []))
-        .padding()
+        .padding(.horizontal, 20)
+        .frame(width: 390)
         .background(AppTheme.background)
         .preferredColorScheme(.dark)
 }

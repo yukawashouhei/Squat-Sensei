@@ -89,9 +89,9 @@ struct HomeView: View {
 
             Image("squat_session_icon")
                 .resizable()
-                .scaledToFill()
-                .frame(width: 44, height: 44)
-                .clipShape(Circle())
+                .scaledToFit()
+                .frame(width: 52, height: 52)
+                .blendMode(.screen)
         }
     }
 }

@@ -86,8 +86,18 @@ def generate_line(client: genai.Client, rep: int, prompt: str) -> bytes:
         ),
     )
 
-    parts = response.candidates[0].content.parts
-    for part in parts:
+    if not response.candidates:
+        raise RuntimeError(
+            f"No candidates returned for rep {rep} (prompt_feedback={response.prompt_feedback})"
+        )
+
+    candidate = response.candidates[0]
+    if not candidate.content or not candidate.content.parts:
+        raise RuntimeError(
+            f"No content parts for rep {rep} (finish_reason={candidate.finish_reason})"
+        )
+
+    for part in candidate.content.parts:
         if part.inline_data and part.inline_data.data:
             return part.inline_data.data
 
@@ -125,17 +135,33 @@ def main() -> None:
 
     for rep, prompt in LINES:
         filename = OUTPUT_DIR / f"rep_{rep:02d}.wav"
+        if filename.exists() and filename.stat().st_size > 0:
+            print(f"  rep {rep:02d} -> {filename.name} ... SKIP (exists)")
+            continue
+
         print(f"  rep {rep:02d} -> {filename.name} ...", end=" ", flush=True)
 
-        try:
-            pcm = generate_line(client, rep, prompt)
-            write_wave_file(filename, pcm)
-            print("OK")
-        except Exception as exc:
-            print(f"FAILED ({exc})")
+        last_error: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                pcm = generate_line(client, rep, prompt)
+                write_wave_file(filename, pcm)
+                print("OK" if attempt == 1 else f"OK (attempt {attempt})")
+                last_error = None
+                break
+            except Exception as exc:
+                last_error = exc
+                if attempt < 3:
+                    wait = 5 * attempt
+                    print(f"retry in {wait}s ({exc})", end=" ... ", flush=True)
+                    time.sleep(wait)
+                else:
+                    print(f"FAILED ({exc})")
+
+        if last_error is not None:
             sys.exit(1)
 
-        time.sleep(0.5)
+        time.sleep(0.8)
 
     print(f"\nDone. Generated {len(LINES)} files in {OUTPUT_DIR}")
 

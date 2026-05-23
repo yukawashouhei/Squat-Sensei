@@ -15,3 +15,12 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Python / TTS generation
+tools/.venv/
+tools/.env
+.env
+.env.local
+*.env.local
+__pycache__/
+*.pyc

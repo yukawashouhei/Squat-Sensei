@@ -86,7 +86,7 @@ final class SquatSessionViewModel {
             caption = line.caption
         }
 
-        speechCoach.speak(line.spoken)
+        speechCoach.play(line.audioFileName, fallbackText: line.caption.isEmpty ? nil : line.caption)
 
         if rep >= SquatCoachScript.totalReps {
             isSessionComplete = true

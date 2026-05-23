@@ -7,6 +7,7 @@ import SwiftUI
 
 struct SquatSessionView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(FaceMaskStorageKey.emoji) private var faceMaskEmoji = FaceMaskCatalog.default
     @State private var viewModel = SquatSessionViewModel()
 
     var body: some View {
@@ -32,6 +33,9 @@ struct SquatSessionView: View {
     private var sessionContent: some View {
         ZStack {
             CameraPreviewView(session: viewModel.cameraManager.session)
+                .ignoresSafeArea()
+
+            FaceMaskView(region: viewModel.face, emoji: faceMaskEmoji)
                 .ignoresSafeArea()
 
             PoseOverlayView(joints: viewModel.joints)

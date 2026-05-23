@@ -10,6 +10,7 @@ import Observation
 @Observable
 final class SquatSessionViewModel {
     var joints: [JointPoint] = []
+    var face: FaceRegion?
     var displayCount = "0"
     var caption = "Get ready. Squat down and stand up."
     var isSessionComplete = false
@@ -30,6 +31,7 @@ final class SquatSessionViewModel {
         displayCount = "0"
         caption = "Get ready. Squat down and stand up."
         joints = []
+        face = nil
 
         guard await cameraManager.requestPermission() else {
             permissionDenied = true
@@ -72,6 +74,7 @@ final class SquatSessionViewModel {
         guard !isSessionComplete else { return }
 
         joints = result.joints
+        face = result.face
 
         if let completedRep = result.completedRep {
             handleCompletedRep(completedRep)

@@ -45,6 +45,8 @@ struct HomeView: View {
                 squatSessionCard
             }
             .buttonStyle(.plain)
+
+            FaceMaskPickerView()
         }
     }
 
@@ -81,12 +83,9 @@ struct HomeView: View {
 
     private var squatSessionIcon: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color(red: 0.16, green: 0.16, blue: 0.16))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(AppTheme.secondaryText.opacity(0.25), lineWidth: 1)
-                }
+            Circle()
+                .stroke(AppTheme.gold.opacity(0.45), lineWidth: 2)
+                .frame(width: 56, height: 56)
 
             Image("squat_session_icon")
                 .resizable()
@@ -94,7 +93,6 @@ struct HomeView: View {
                 .frame(width: 44, height: 44)
                 .clipShape(Circle())
         }
-        .frame(width: 56, height: 56)
     }
 }
 

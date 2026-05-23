@@ -50,10 +50,7 @@ struct HomeView: View {
 
     private var squatSessionCard: some View {
         HStack(spacing: 16) {
-            Image("squat_session_icon")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 56, height: 56)
+            squatSessionIcon
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("Squat Session")
@@ -80,6 +77,24 @@ struct HomeView: View {
         .padding(18)
         .background(AppTheme.cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var squatSessionIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(red: 0.16, green: 0.16, blue: 0.16))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(AppTheme.secondaryText.opacity(0.25), lineWidth: 1)
+                }
+
+            Image("squat_session_icon")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 44, height: 44)
+                .clipShape(Circle())
+        }
+        .frame(width: 56, height: 56)
     }
 }
 

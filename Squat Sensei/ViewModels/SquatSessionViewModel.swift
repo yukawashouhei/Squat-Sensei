@@ -1,0 +1,99 @@
+//
+//  SquatSessionViewModel.swift
+//  Squat Sensei
+//
+
+import AVFoundation
+import Observation
+
+@MainActor
+@Observable
+final class SquatSessionViewModel {
+    var joints: [JointPoint] = []
+    var displayCount = "0"
+    var caption = "Get ready. Squat down and stand up."
+    var isSessionComplete = false
+    var permissionDenied = false
+    var errorMessage: String?
+
+    let cameraManager = CameraSessionManager()
+
+    private let poseDetector = PoseDetector()
+    private let speechCoach = SpeechCoach()
+    private var squatCounter = SquatCounter()
+    private var usesFrontCamera = true
+    private var isProcessingFrame = false
+
+    func start() async {
+        permissionDenied = false
+        errorMessage = nil
+        isSessionComplete = false
+        squatCounter.reset()
+        displayCount = "0"
+        caption = "Get ready. Squat down and stand up."
+        joints = []
+
+        guard await cameraManager.requestPermission() else {
+            permissionDenied = true
+            return
+        }
+
+        do {
+            try cameraManager.configure(usingFrontCamera: usesFrontCamera)
+            cameraManager.setSampleBufferHandler { [weak self] sampleBuffer in
+                Task { @MainActor in
+                    self?.process(sampleBuffer: sampleBuffer)
+                }
+            }
+            cameraManager.start()
+        } catch {
+            errorMessage = "Unable to start the camera."
+        }
+    }
+
+    func stop() {
+        cameraManager.setSampleBufferHandler(nil)
+        cameraManager.stop()
+        speechCoach.stop()
+    }
+
+    func toggleCamera() async {
+        usesFrontCamera.toggle()
+        cameraManager.stop()
+
+        do {
+            try cameraManager.configure(usingFrontCamera: usesFrontCamera)
+            cameraManager.start()
+        } catch {
+            errorMessage = "Unable to switch the camera."
+        }
+    }
+
+    private func process(sampleBuffer: CMSampleBuffer) {
+        guard !isProcessingFrame, !isSessionComplete else { return }
+        isProcessingFrame = true
+        defer { isProcessingFrame = false }
+
+        let detectedJoints = poseDetector.detect(in: sampleBuffer)
+        joints = detectedJoints
+
+        guard let completedRep = squatCounter.process(joints: detectedJoints) else { return }
+        handleCompletedRep(completedRep)
+    }
+
+    private func handleCompletedRep(_ rep: Int) {
+        guard let line = SquatCoachScript.line(for: rep) else { return }
+
+        displayCount = line.displayCount
+        if !line.caption.isEmpty {
+            caption = line.caption
+        }
+
+        speechCoach.speak(line.spoken)
+
+        if rep >= SquatCoachScript.totalReps {
+            isSessionComplete = true
+            cameraManager.stop()
+        }
+    }
+}

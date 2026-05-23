@@ -18,17 +18,15 @@ final class SquatSessionViewModel {
 
     let cameraManager = CameraSessionManager()
 
-    private let poseDetector = PoseDetector()
+    private let frameProcessor = FrameProcessor()
     private let speechCoach = SpeechCoach()
-    private var squatCounter = SquatCounter()
     private var usesFrontCamera = true
-    private var isProcessingFrame = false
 
     func start() async {
         permissionDenied = false
         errorMessage = nil
         isSessionComplete = false
-        squatCounter.reset()
+        frameProcessor.reset()
         displayCount = "0"
         caption = "Get ready. Squat down and stand up."
         joints = []
@@ -40,9 +38,10 @@ final class SquatSessionViewModel {
 
         do {
             try cameraManager.configure(usingFrontCamera: usesFrontCamera)
-            cameraManager.setSampleBufferHandler { [weak self] sampleBuffer in
-                Task { @MainActor in
-                    self?.process(sampleBuffer: sampleBuffer)
+            cameraManager.setSampleBufferHandler { [frameProcessor] sampleBuffer in
+                let result = frameProcessor.process(sampleBuffer)
+                Task { @MainActor [weak self] in
+                    self?.applyFrameResult(result)
                 }
             }
             cameraManager.start()
@@ -69,16 +68,14 @@ final class SquatSessionViewModel {
         }
     }
 
-    private func process(sampleBuffer: CMSampleBuffer) {
-        guard !isProcessingFrame, !isSessionComplete else { return }
-        isProcessingFrame = true
-        defer { isProcessingFrame = false }
+    private func applyFrameResult(_ result: FrameAnalysisResult) {
+        guard !isSessionComplete else { return }
 
-        let detectedJoints = poseDetector.detect(in: sampleBuffer)
-        joints = detectedJoints
+        joints = result.joints
 
-        guard let completedRep = squatCounter.process(joints: detectedJoints) else { return }
-        handleCompletedRep(completedRep)
+        if let completedRep = result.completedRep {
+            handleCompletedRep(completedRep)
+        }
     }
 
     private func handleCompletedRep(_ rep: Int) {

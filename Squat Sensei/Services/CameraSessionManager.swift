@@ -11,13 +11,13 @@ final class CameraSessionManager: NSObject, @unchecked Sendable {
     private let videoOutput = AVCaptureVideoDataOutput()
     private let sessionQueue = DispatchQueue(label: "com.perksh.squat-sensei.camera")
     private var isConfigured = false
-    private var sampleBufferHandler: (@Sendable (CMSampleBuffer) -> Void)?
+    private var sampleBufferHandler: ((CMSampleBuffer) -> Void)?
 
     var isRunning: Bool {
         session.isRunning
     }
 
-    func setSampleBufferHandler(_ handler: (@Sendable (CMSampleBuffer) -> Void)?) {
+    func setSampleBufferHandler(_ handler: ((CMSampleBuffer) -> Void)?) {
         sessionQueue.async { [weak self] in
             self?.sampleBufferHandler = handler
         }

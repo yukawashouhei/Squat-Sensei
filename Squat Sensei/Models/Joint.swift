@@ -6,7 +6,7 @@
 import CoreGraphics
 import Vision
 
-struct JointPoint: Identifiable {
+struct JointPoint: Identifiable, Sendable {
     let id: VNHumanBodyPoseObservation.JointName
     let location: CGPoint
     let confidence: Float

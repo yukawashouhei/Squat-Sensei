@@ -94,6 +94,7 @@ final class SquatSessionViewModel {
         if rep >= SquatCoachScript.totalReps {
             isSessionComplete = true
             cameraManager.stop()
+            StreakStore.shared.markTodayCompleted()
         }
     }
 }

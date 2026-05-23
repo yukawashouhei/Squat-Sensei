@@ -6,10 +6,13 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Bindable private var streakStore = StreakStore.shared
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 heroSection
+                StreakCardView(store: streakStore)
                 todaysWorkoutSection
             }
             .padding(.horizontal, 20)
@@ -18,6 +21,9 @@ struct HomeView: View {
         }
         .background(AppTheme.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .onAppear {
+            streakStore.reload()
+        }
     }
 
     private var heroSection: some View {
